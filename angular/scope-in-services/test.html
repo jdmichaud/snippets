@@ -1,0 +1,18 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <title></title>
+  </head>
+  <body ng-app="testApp">
+    <div ng-controller="DisplayCtrl">
+      {{ servicescope.value }}
+    </div>
+    <div ng-controller="ChangeCtrl">
+      <a href="#" ng-click="setValue(servicescope.value + 1)">increment</a>
+    </div>
+    <script src="jquery.js"></script>
+    <script src="angular.js"></script>
+    <script src="test.js"></script>
+  </body>
+</html>
+
