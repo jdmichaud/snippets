@@ -2,43 +2,23 @@
 #include <LowPower.h>
 
 /*
- * This example shows how to read the status of a input switch
- * and flash a LED when that switch change its state.
- * To reduce power consumption, the MCU is put to sleep and we
- * use the switch pin as a interrupt source.
+ * This example demonstrate how to use the generic 433 Mhz
+ * Radio Frequency emitter using the RFSwitch library
+ * LowPower is used to decrease power consumption.
  */
 
-//RCSwitch rfDevice = RCSwitch();
+RCSwitch rfDevice = RCSwitch();
 
 int SERIAL_COMMUNICATION_SPEED = 9600;  
-// How long do we sleep. The longer, the better for the battery but the
-// resolution of our switch will suffer.
-period_t SLEEP_PERIOD = SLEEP_15MS;
-// Pin on which the magnetic swith is plugged.
-int MAGNETIC_SWITCH_PIN = 3;
 // Pin on which the RF device is plugged;
 int RF_DEVICE_PIN = 12;
 // internal LED
 int INTERNAL_LED = 13;
-// Status of the magnetic switch. We consider the door closed
-boolean contact = true;
-
-// Function called on interrupt
-void wakeUp() {
-  // It is a critical section so don't do anything
-}
-
-void flashLED() {
-  digitalWrite(RF_DEVICE_PIN, HIGH);
-  delay(50);
-  digitalWrite(RF_DEVICE_PIN, LOW);    
-}
 
 void setup() {
-  /***********************  RF Device initialisation **************************/
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
-  // Transmitter is connected to Arduino Pin #10
-  //rfDevice.enableTransmit(RF_DEVICE_PIN);
+  /***********************  RF Device initialisation **************************/
+  rfDevice.enableTransmit(RF_DEVICE_PIN);
   // Optional set pulse length.
   // rfDevice.setPulseLength(320);
   // Optional set protocol (default is 1, will work for most outlets)
@@ -46,13 +26,6 @@ void setup() {
   // Optional set number of transmission repetitions.
   // rfDevice.setRepeatTransmit(15);
   /*************************  Pins initialisation ****************************/
-  // Allow wake up pin to trigger interrupt on state change.
-  attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), wakeUp, CHANGE);
-  // Set the pin to PULLUP so we don't need an additional resistor
-  // WARNING, the order of the instruction matters. attachInterrup will
-  // erase the PULLUP switch, so configure the PULLUP after the 
-  // attacheInterrupt
-  pinMode(MAGNETIC_SWITCH_PIN, INPUT_PULLUP);
   pinMode(RF_DEVICE_PIN, OUTPUT);
   // Just turn useless LED to off
   pinMode(INTERNAL_LED, OUTPUT);
@@ -60,19 +33,12 @@ void setup() {
 }
 
 void loop() {
-  // Go to sleep mode
-  LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
-
-  // Check contact state. We assume a normally closed switch.
-  boolean newContact = digitalRead(MAGNETIC_SWITCH_PIN);
-  // Does the contact status changed since we last check
-  if (newContact != contact) {
-    // Send the status of the contact on one bit
-    //rfDevice.send(contact, 1);
-    flashLED();
-    // Update the status of the contact
-    contact = newContact;
-    //Serial.print("pushing to RF device: ");
-    //Serial.println(contact);
-  }
+  Serial.print("sending...");
+  rfDevice.send(5393, 24);
+  Serial.println("done");
+  delay(1000);  
+  Serial.print("sending...");
+  rfDevice.send(5396, 24);
+  Serial.println("done");
+  delay(1000);  
 }
