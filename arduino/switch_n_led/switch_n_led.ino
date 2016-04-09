@@ -1,4 +1,3 @@
-#include <RCSwitch.h>
 #include <LowPower.h>
 
 /*
@@ -8,12 +7,7 @@
  * use the switch pin as a interrupt source.
  */
 
-//RCSwitch rfDevice = RCSwitch();
-
-int SERIAL_COMMUNICATION_SPEED = 9600;  
-// How long do we sleep. The longer, the better for the battery but the
-// resolution of our switch will suffer.
-period_t SLEEP_PERIOD = SLEEP_15MS;
+int SERIAL_COMMUNICATION_SPEED = 9600;
 // Pin on which the magnetic swith is plugged.
 int MAGNETIC_SWITCH_PIN = 3;
 // Pin on which the RF device is plugged;
@@ -31,26 +25,17 @@ void wakeUp() {
 void flashLED() {
   digitalWrite(RF_DEVICE_PIN, HIGH);
   delay(50);
-  digitalWrite(RF_DEVICE_PIN, LOW);    
+  digitalWrite(RF_DEVICE_PIN, LOW);
 }
 
 void setup() {
-  /***********************  RF Device initialisation **************************/
   Serial.begin(SERIAL_COMMUNICATION_SPEED);
-  // Transmitter is connected to Arduino Pin #10
-  //rfDevice.enableTransmit(RF_DEVICE_PIN);
-  // Optional set pulse length.
-  // rfDevice.setPulseLength(320);
-  // Optional set protocol (default is 1, will work for most outlets)
-  // rfDevice.setProtocol(2);
-  // Optional set number of transmission repetitions.
-  // rfDevice.setRepeatTransmit(15);
   /*************************  Pins initialisation ****************************/
   // Allow wake up pin to trigger interrupt on state change.
   attachInterrupt(digitalPinToInterrupt(MAGNETIC_SWITCH_PIN), wakeUp, CHANGE);
   // Set the pin to PULLUP so we don't need an additional resistor
   // WARNING, the order of the instruction matters. attachInterrup will
-  // erase the PULLUP switch, so configure the PULLUP after the 
+  // erase the PULLUP switch, so configure the PULLUP after the
   // attacheInterrupt
   pinMode(MAGNETIC_SWITCH_PIN, INPUT_PULLUP);
   pinMode(RF_DEVICE_PIN, OUTPUT);
