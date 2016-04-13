@@ -1,0 +1,16 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body ng-app="testApp" ng-controller="TestCtrl as vm">
+    {{ 'HELLO' | translate }} Pr. Faulken.<br>
+    {{ 'ORANGE' | translate }}<br>
+    <a href="#" ng-click="vm.lang = (vm.lang === 'en') ? 'fr' : 'en'">{{ (vm.lang === 'en') ? 'fr' : 'en' }}</a>
+  </body>
+  <script src="angular.js"></script>
+  <script src="angular-translate.js"></script>
+  <script src="angular-translate-loader-static-files.js"></script>
+  <script src="app.js"></script>
+</html>
+
