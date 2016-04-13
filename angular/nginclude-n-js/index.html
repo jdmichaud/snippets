@@ -1,0 +1,27 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body ng-app="testApp">
+    <div ng-controller="TabCtrl as vm">
+      <ul>
+        <li ng-repeat="tab in vm.tabs" ng-show="tab.visible">
+          <a href="#" ng-click="vm.currentTab = tab">
+            <span ng-if="tab === vm.currentTab">&gt;</span>
+              {{ tab.title }}
+            <span ng-if="tab === vm.currentTab">&lt;</span>
+          </a>
+        </li>
+      </ul>
+      <p>selected URL: {{ vm.currentTab.url }}</p>
+        <div ng-include="vm.currentTab.url">
+        </div>
+    </div>
+    <script src="jquery.js"></script>
+    <script src="angular.js"></script>
+    <script src="app.js"></script>
+    <script src="ocLazyLoad.js"></script>
+  </body>
+</html>
+
