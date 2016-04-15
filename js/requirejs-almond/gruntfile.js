@@ -14,12 +14,20 @@ module.exports = function (grunt) {
     config: config,
 
     requirejs: {
+      options: {
+        baseUrl: '<%= config.app %>/js/',
+        include: 'main', // Main script to load
+        name: '../../node_modules/almond/almond', // Using almond for production
+        out: '<%= config.dist %>/js/app.js',
+      },
+      serve: {
+        options: {
+          optimize: 'none', // disable uglify for debugging purposes
+          generateSourceMaps: true,
+        },
+      },
       dist: {
         options: {
-          baseUrl: '<%= config.app %>/js/',
-          include: 'main', // Main script to load
-          name: '../../node_modules/almond/almond', // Using almond for production
-          out: '<%= config.dist %>/js/app.js',
           optimize: 'uglify', // this is the default value
         },
       },
@@ -52,6 +60,7 @@ module.exports = function (grunt) {
           '<%= config.app %>/{,*/}*.html',
           '<%= config.app %>/**/*.js',
         ],
+        tasks: ['build-serve'],
       },
     },
     connect: {
@@ -75,14 +84,32 @@ module.exports = function (grunt) {
     },
     clean: {
       serve: '<%= config.dist %>',
+      dist: '<%= config.dist %>',
     },
   });
 
-  grunt.registerTask('serve', function (target) {
+  // Generate obfuscated javascript for production
+  grunt.registerTask('build', function (target) {
+    grunt.task.run([
+      'clean:dist',
+      'requirejs:dist',
+      'copy',
+    ]);
+  });
+
+  // Generate non-obfuscated javascript with mapping for testing purposes
+  grunt.registerTask('build-serve', function (target) {
     grunt.task.run([
       'clean:serve',
-      'requirejs',
+      'requirejs:serve',
       'copy',
+    ]);
+  });
+
+  // Launch a webserver for testing purposes
+  grunt.registerTask('serve', function (target) {
+    grunt.task.run([
+      'build-serve',
       'connect:livereload',
       'watch',
     ]);
