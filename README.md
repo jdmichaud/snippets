@@ -1,5 +1,5 @@
-# Tabs and NgInclude
+# snippets
 
-Demonstrate how to use links and the ngInclude directive to implement few simple
-tab pages.
+This repo contains a collection of snippets and mini-project to demonstrate the
+use of various technics and technologies in various languages and environments.
 
