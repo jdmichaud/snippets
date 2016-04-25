@@ -1,0 +1,23 @@
+<!doctype html>
+<html class="no-js">
+  <head>
+    <title></title>
+  </head>
+  <body ng-app="testApp">
+    <div ng-controller="TestCtrl as vm">
+      <my-dialog title="This is the title of my dialog" 
+                 on-ok="vm.close()" 
+                 on-cancel="vm.dismiss()"
+                 ok-disabled="vm.onDisabled"
+                 cancel-disabled="vm.cancelDisabled">
+        This is a dialog box which have access to the {{ vm.scope }}
+      </my-dialog>
+  </div>
+
+  <script src="angular.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
+
+
