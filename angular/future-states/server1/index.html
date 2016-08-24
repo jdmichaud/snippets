@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+  <head>
+    <title></title>
+  </head>
+  <body ng-app="testApp">
+    <div ng-controller="StateCtrl as vm">
+      <ul>
+        <li ng-repeat="state in vm.states" ng-if="state.name !== ''">
+          <a href="" ng-click="vm.changeState(state)">
+            <span ng-if="vm.$state.current.name === state.name">&gt;</span>
+              {{ state.name }}
+            <span ng-if="vm.$state.current.name === state.name">&lt;</span>
+          </a>
+        </li>
+      </ul>
+      <p>selected state: {{ vm.$state.current.name }}</p>
+      <input type="text" ng-model="vm.server">
+      <button ng-click="vm.loadStates()">Load States</button>
+      <div ui-view>
+      </div>
+    </div>
+    <script src="jquery.js"></script>
+    <script src="angular.js"></script>
+    <script src="angular-ui-router.js"></script>
+    <script src="ct-ui-router-extras.min.js"></script>
+    <script src="app.js"></script>
+    <script src="ocLazyLoad.js"></script>
+  </body>
+</html>
+
