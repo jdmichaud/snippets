@@ -821,6 +821,7 @@
              * @returns promise
              */
             $delegate.buildElement = function buildElement(type, path, params) {
+                console.log('buildElement type:', type, 'path:', path, 'params:', params);
                 var deferred = $q.defer(),
                     el,
                     loaded,

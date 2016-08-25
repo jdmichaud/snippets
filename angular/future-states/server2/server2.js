@@ -9,10 +9,49 @@ function handleRequest(request, response) {
   response.setHeader('Access-Control-Allow-Origin', '*');
   if (request.method === 'GET' && request.url === '/states') {
     console.log('send states');
+    // Send the substate tree in JSON to the client for dynamic loading with ui-router-extras
     response.end(JSON.stringify(
       [
-        { type: 'lLoad', stateName: 'state2', url: '/state2', template: 'http://3.249.251.52:8001/state2.html' },
-        { type: 'lLoad', stateName: 'state3', url: '/state3', template: 'http://3.249.251.52:8001/state3.html' }
+        {
+          type: 'lLoad',
+          name: 'state2',
+          templateUrl: '$server2$/state2.html',
+        },
+        {
+          type: 'lLoad',
+          name: 'state3',
+          templateUrl: '$server2$/state3.html',
+        },
+        {
+          type: 'lLoad',
+          name: 'state3.substate1',
+          views: {
+            subview: {
+              template: `
+              <div>
+                <p>This is substate1 yo!</p><br>
+                <button ng-click="vm.$state.go('state3.substate2')">Go to substate2</button>
+              </div>`,
+              controllerAs: 'vm',
+              controller: 'SubStateController',
+            },
+          },
+        },
+        {
+          type: 'lLoad',
+          name: 'state3.substate2',
+          views: {
+            subview: {
+              template: `
+              <div>
+                <p>This is substate2 yo!</p><br>
+                <button ng-click="vm.$state.go('state3.substate1')">Go to substate1</button>
+              </div>`,
+              controllerAs: 'vm',
+              controller: 'SubStateController',
+            },
+          },
+        },
       ]
     ));
   } else if (request.method === 'GET') {

@@ -15,7 +15,7 @@ var someDirectiveDirective = function () {
     scope: {
       attribute: '@',
     },
-    templateUrl: 'http://3.249.251.52:8001/some-directive.directive.html',
+    templateUrl: '$server2$/some-directive.directive.html',
     controllerAs: 'vm',
     controller: function (someService) {
       var vm = this;

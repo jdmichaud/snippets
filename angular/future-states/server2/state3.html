@@ -1,4 +1,7 @@
-<div oc-lazy-load="['http://3.249.251.52:8001/some-directive.directive.js']">
+<!-- <div oc-lazy-load="['$server2$/some-directive.directive.js']"> -->
+<div oc-lazy-load="['http://3.249.251.52:8001/some-directive.directive.js', 'http://3.249.251.52:8001/sub-state.controller.js']">
   <pre>This is state three yo!</pre>
   <some-directive/>
+  <hr>
+  <div ui-view="subview"/>
 </div>
