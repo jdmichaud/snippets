@@ -29,7 +29,7 @@ function handleRequest(request, response) {
             subview: {
               template: `
               <div>
-                <p>This is substate1 yo!</p><br>
+                <pre>This is substate1 yo!</pre><br>
                 <button ng-click="vm.$state.go('state3.substate2')">Go to substate2</button>
               </div>`,
               controllerAs: 'vm',
@@ -44,7 +44,7 @@ function handleRequest(request, response) {
             subview: {
               template: `
               <div>
-                <p>This is substate2 yo!</p><br>
+                <pre>This is substate2 yo!</pre><br>
                 <button ng-click="vm.$state.go('state3.substate1')">Go to substate1</button>
               </div>`,
               controllerAs: 'vm',
