@@ -2,18 +2,6 @@ var testApp = angular.module('testApp', ['oc.lazyLoad', 'ui.router', 'ct.ui.rout
 
 var lazyLoadStateFactory = function($q, futureState) {
   console.log('load state ', futureState)
-  // var state = {
-  //   name: futureState.stateName,
-  //   templateUrl: futureState.template,
-  //   url: futureState.url,
-  // };
-  // if (futureState.hasOwnProperty('views')) {
-  //   state.views = futureState.views;
-  // }
-  // if (futureState.hasOwnProperty('views')) {
-  //   state.views = futureState.views;
-  // }
-  console.log("futureState:", futureState);
   return $q.when(futureState);
 };
 
