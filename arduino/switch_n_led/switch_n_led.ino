@@ -42,11 +42,14 @@ void setup() {
   // Just turn useless LED to off
   pinMode(INTERNAL_LED, OUTPUT);
   digitalWrite(INTERNAL_LED, LOW);
+  Serial.print("Setup done.");
 }
 
 void loop() {
+  Serial.print("Goin to sleep. Zzz...");
   // Go to sleep mode
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
+  Serial.print("Waking up...");
 
   // Check contact state. We assume a normally closed switch.
   boolean newContact = digitalRead(MAGNETIC_SWITCH_PIN);
@@ -57,7 +60,7 @@ void loop() {
     flashLED();
     // Update the status of the contact
     contact = newContact;
-    //Serial.print("pushing to RF device: ");
-    //Serial.println(contact);
+    Serial.print("pushing to RF device: ");
+    Serial.println(contact);
   }
 }
