@@ -86,14 +86,19 @@ function setUniform(gl, program, variable, matrix) {
 /*
  * Insert an object described by a array of vertices into the rendering queue.
  */
-function insertObject(gl, program, objectVertices) {
-  var triangleVertexBufferObject = gl.createBuffer();
-  gl.bindBuffer(gl.ARRAY_BUFFER, triangleVertexBufferObject);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(objectVertices), gl.STATIC_DRAW);
+function insertObject(gl, program, vertices, objects) {
+  var verticesBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesBuffer), gl.STATIC_DRAW);
+
+  var objectsBuffer = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, objectsBuffer);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectsBuffer), gl.STATIC_DRAW);
+
   const positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
   gl.vertexAttribPointer(
     positionAttribLocation,
-    3, // Number of elements per attribute
+    vertices.length / 3, // Number of elements per attribute
     gl.FLOAT,
     gl.FALSE,
     3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
@@ -103,31 +108,44 @@ function insertObject(gl, program, objectVertices) {
 }
 
 function initTransform(gl, program) {
-  const worldMatrix = [
-    0.95, 0.0, 0.0, 0.0,
-    0.0, 0.95, 0.0, 0.0,
-    0.0, 0.0, 0.95, 0.0,
-    0.0, 0.0, 0.0, 1.0,
-  ];
+  const worldMatrix = new Float32Array(16);
+  mat4.identity(worldMatrix);
   const viewMatrix = new Float32Array(16);
-  mat4.lookAt(viewMatrix, [0, 0, -2], [0, 0, 0], [0, 1, 0]);
+  mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
   const projMatrix = new Float32Array(16);
   mat4.perspective(projMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 1000.0);
 
-  setUniform(gl, program, 'mWorld', new Float32Array(worldMatrix));
-  setUniform(gl, program, 'mView', viewMatrix);
-  setUniform(gl, program, 'mProj', new Float32Array(projMatrix));
-
   return {
-    worldMatrix,
-    viewMatrix,
-    projMatrix,
+    world: {
+      matrix: worldMatrix,
+      uniform: setUniform(gl, program, 'mWorld', new Float32Array(worldMatrix)),
+    },
+    view: {
+      matrix: viewMatrix,
+      uniform: setUniform(gl, program, 'mView', viewMatrix),
+    },
+    proj: {
+      matrix: projMatrix,
+      uniform: setUniform(gl, program, 'mProj', new Float32Array(projMatrix)),
+    }
   };
 }
 
-function render() {
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
-  requestAnimationFrame(arguments.callee);
+function run(gl, program, transforms) {
+  const identityMatrix = new Float32Array(16);
+  mat4.identity(identityMatrix);
+  let angle = 0;
+  const render = function (gl) {
+    angle = performance.now() / 1000 / 6 * Math.PI * 2;
+    mat4.rotate(transforms.world.matrix, identityMatrix, angle, [0, 1, 0]);
+    gl.uniformMatrix4fv(transforms.world.uniform, gl.FALSE, transforms.world.matrix);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    requestAnimationFrame(function () { render(gl); });
+  }
+  requestAnimationFrame(function () { render(gl); });
+
 }
 
 function main() {
@@ -137,17 +155,23 @@ function main() {
   const program = initGL(gl);
 
   // Create a triangle
-  const objectVertices = [
+  const vertices = [
    // X, Y, Z
-    0.0, 0.5, 0.0,
-    -0.5, -0.5, 0.0,
-    0.5, -0.5, 0.0,
+    1.0, 1.0, 1.0,
+    1.0, -1.0, 1.0,
+    -1.0, -1.0, 1.0,
+    -1.0, 1.0, 1.0,
   ];
-  insertObject(gl, program, objectVertices);
+  const objects = [
+    0, 1, 2,
+    0, 2, 3,
+  ]
+
+  insertObject(gl, program, vertices, objects);
 
   gl.useProgram(program);
   transforms = initTransform(gl, program);
-  requestAnimationFrame(render);
+  run(gl, program, transforms);
 }
 
 main();
