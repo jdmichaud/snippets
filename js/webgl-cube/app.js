@@ -89,11 +89,11 @@ function setUniform(gl, program, variable, matrix) {
 function insertObject(gl, program, vertices, objects) {
   var verticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(verticesBuffer), gl.STATIC_DRAW);
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 
   var objectsBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, objectsBuffer);
-  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objectsBuffer), gl.STATIC_DRAW);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint16Array(objects), gl.STATIC_DRAW);
 
   const positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
   gl.vertexAttribPointer(
@@ -141,8 +141,8 @@ function run(gl, program, transforms) {
     gl.uniformMatrix4fv(transforms.world.uniform, gl.FALSE, transforms.world.matrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    //gl.drawArrays(gl.TRIANGLES, 0, 3);
     requestAnimationFrame(function () { render(gl); });
   }
   requestAnimationFrame(function () { render(gl); });
@@ -161,7 +161,7 @@ function main() {
     1.0, 1.0, 1.0,
     1.0, -1.0, 1.0,
     -1.0, -1.0, 1.0,
-//    -1.0, 1.0, 1.0,
+    -1.0, 1.0, 1.0,
   ];
   const objects = [
     0, 1, 2,
