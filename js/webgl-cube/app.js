@@ -98,7 +98,7 @@ function insertObject(gl, program, vertices, objects) {
   const positionAttribLocation = gl.getAttribLocation(program, 'vertPosition');
   gl.vertexAttribPointer(
     positionAttribLocation,
-    vertices.length / 3, // Number of elements per attribute
+    3, // Number of elements per attribute
     gl.FLOAT,
     gl.FALSE,
     3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
@@ -141,7 +141,8 @@ function run(gl, program, transforms) {
     gl.uniformMatrix4fv(transforms.world.uniform, gl.FALSE, transforms.world.matrix);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    //gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
     requestAnimationFrame(function () { render(gl); });
   }
   requestAnimationFrame(function () { render(gl); });
@@ -160,7 +161,7 @@ function main() {
     1.0, 1.0, 1.0,
     1.0, -1.0, 1.0,
     -1.0, -1.0, 1.0,
-    -1.0, 1.0, 1.0,
+//    -1.0, 1.0, 1.0,
   ];
   const objects = [
     0, 1, 2,
