@@ -9,8 +9,9 @@ const vertexShaderSource = `
   precision mediump float;
 
   attribute vec3 vertPosition;
+  attribute vec2 vertTexCoord;
 
-  varying vec3 fragColor;
+  varying vec2 fragTextCoord;
 
   uniform mat4 mWorld;
   uniform mat4 mView;
@@ -18,7 +19,7 @@ const vertexShaderSource = `
 
   void main()
   {
-    fragColor = vec3(0.0, 0.0, 0.0);
+    fragTextCoord = vertTexCoord;
     gl_Position = mProj * mView * mWorld * vec4(vertPosition, 1.0);
   }
 `;
@@ -26,10 +27,11 @@ const vertexShaderSource = `
 const fragmentShaderSource = `
   precision mediump float;
 
-  varying vec3 fragColor;
+  varying vec2 fragTextCoord;
+  uniform sampler2D sampler;
 
   void main() {
-    gl_FragColor = vec4(fragColor, 1.0);
+    gl_FragColor = texture2D(sampler, fragTextCoord);
   }
 `;
 
@@ -87,7 +89,7 @@ function setUniform(gl, program, variable, matrix) {
 /*
  * Insert an object described by a array of vertices into the rendering queue.
  */
-function insertObject(gl, program, vertices, objects) {
+function insertObject(gl, program, vertices, objects, texture) {
   var verticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -102,10 +104,21 @@ function insertObject(gl, program, vertices, objects) {
     3, // Number of elements per attribute
     gl.FLOAT,
     gl.FALSE,
-    3 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
     0 // Offset in the input array
   );
   gl.enableVertexAttribArray(positionAttribLocation);
+
+  const texCoordAttribLocation = gl.getAttribLocation(program, 'vertTexCoord');
+  gl.vertexAttribPointer(
+    texCoordAttribLocation,
+    2, // Number of elements per attribute
+    gl.FLOAT,
+    gl.FALSE,
+    5 * Float32Array.BYTES_PER_ELEMENT, // Size of an individual vertex
+    3 * Float32Array.BYTES_PER_ELEMENT // Offset in the input array
+  );
+  gl.enableVertexAttribArray(texCoordAttribLocation);
 }
 
 function initTransform(gl, program) {
@@ -130,6 +143,17 @@ function initTransform(gl, program) {
       uniform: setUniform(gl, program, 'mProj', new Float32Array(projMatrix)),
     }
   };
+}
+
+function createTexture(gl, image) {
+  const texture = gl.createTexture();
+  gl.bindTexture(gl.TEXTURE_2D, texture);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+  gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image)
+  return texture;
 }
 
 function run(gl, program, transforms) {
@@ -158,18 +182,20 @@ function main() {
 
   // Create a triangle
   const vertices = [
-   // X, Y, Z
-    1.0, 1.0, 1.0,
-    1.0, -1.0, 1.0,
-    -1.0, -1.0, 1.0,
-    -1.0, 1.0, 1.0,
+   // X, Y, Z       U, V (text coord)
+    1.0,  1.0, 1.0, 1.0, 1.0,
+    1.0, -1.0, 1.0, 1.0, 0.0,
+    -1.0,-1.0, 1.0, 0.0, 0.0,
+    -1.0, 1.0, 1.0, 0.0, 1.0,
   ];
   const objects = [
     0, 1, 2,
     0, 2, 3,
   ]
 
-  insertObject(gl, program, vertices, objects);
+  const texture = createTexture(gl, document.getElementById('texture'));
+
+  insertObject(gl, program, vertices, objects, texture);
 
   gl.useProgram(program);
   transforms = initTransform(gl, program);
