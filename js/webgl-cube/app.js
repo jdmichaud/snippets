@@ -2,6 +2,7 @@
 // Following the youtube series starting at:
 // https://www.youtube.com/watch?v=kB0ZVUrI4Aw
 // glMatric documentation: http://glmatrix.net/
+// Texturing: https://open.gl/textures
 //
 
 const vertexShaderSource = `
