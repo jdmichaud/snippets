@@ -35,6 +35,9 @@ const fragmentShaderSource = `
   }
 `;
 
+const identityMatrix = new Float32Array(16);
+mat4.identity(identityMatrix);
+
 /*
  * Create a shader, associate it with its GLSL code above and compile it.
  */
@@ -89,7 +92,7 @@ function setUniform(gl, program, variable, matrix) {
 /*
  * Insert an object described by a array of vertices into the rendering queue.
  */
-function insertObject(gl, program, vertices, objects, texture) {
+function insertObject(gl, program, vertices, objects) {
   var verticesBuffer = gl.createBuffer();
   gl.bindBuffer(gl.ARRAY_BUFFER, verticesBuffer);
   gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
@@ -125,7 +128,7 @@ function initTransform(gl, program) {
   const worldMatrix = new Float32Array(16);
   mat4.identity(worldMatrix);
   const viewMatrix = new Float32Array(16);
-  mat4.lookAt(viewMatrix, [0, 0, -5], [0, 0, 0], [0, 1, 0]);
+  mat4.lookAt(viewMatrix, [0, 0, -10], [0, 0, 0], [0, 1, 0]);
   const projMatrix = new Float32Array(16);
   mat4.perspective(projMatrix, Math.PI / 4, canvas.width / canvas.height, 0.1, 1000.0);
 
@@ -156,22 +159,23 @@ function createTexture(gl, image) {
   return texture;
 }
 
+function render(gl, angleX, angleY) {
+  // console.log('angleX:', angleX, 'angleY:', angleY);
+  mat4.rotate(transforms.world.matrix, identityMatrix, angleX, [-1, 0, 0]);
+  mat4.rotate(transforms.world.matrix, transforms.world.matrix, angleY, [0, 1, 0]);
+  gl.uniformMatrix4fv(transforms.world.uniform, gl.FALSE, transforms.world.matrix);
+  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
+
+  gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
+  //gl.drawArrays(gl.TRIANGLES, 0, 3);
+}
+
 function run(gl, program, transforms) {
-  const identityMatrix = new Float32Array(16);
-  mat4.identity(identityMatrix);
-  let angle = 0;
-  const render = function (gl) {
-    angle = performance.now() / 1000 / 6 * Math.PI * 2;
-    mat4.rotate(transforms.world.matrix, identityMatrix, angle, [0, 1, 0]);
-    gl.uniformMatrix4fv(transforms.world.uniform, gl.FALSE, transforms.world.matrix);
-    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-
-    gl.drawElements(gl.TRIANGLES, 6, gl.UNSIGNED_SHORT, 0);
-    //gl.drawArrays(gl.TRIANGLES, 0, 3);
-    requestAnimationFrame(function () { render(gl); });
+  const _render = function (gl) {
+    render(gl);
+    requestAnimationFrame(function () { _render(gl); });
   }
-  requestAnimationFrame(function () { render(gl); });
-
+  requestAnimationFrame(function () { _render(gl); });
 }
 
 function main() {
@@ -183,23 +187,40 @@ function main() {
   // Create a triangle
   const vertices = [
    // X, Y, Z       U, V (text coord)
-    1.0,  1.0, 1.0, 1.0, 1.0,
-    1.0, -1.0, 1.0, 1.0, 0.0,
-    -1.0,-1.0, 1.0, 0.0, 0.0,
-    -1.0, 1.0, 1.0, 0.0, 1.0,
+    1.0,  1.0, -5.0, 0.0, 0.0,
+    1.0, -1.0, -5.0, 0.0, 1.0,
+    -1.0,-1.0, -5.0, 1.0, 1.0,
+    -1.0, 1.0, -5.0, 1.0, 0.0,
   ];
   const objects = [
     0, 1, 2,
     0, 2, 3,
   ]
 
-  const texture = createTexture(gl, document.getElementById('texture'));
+  createTexture(gl, document.getElementById('texture'));
 
-  insertObject(gl, program, vertices, objects, texture);
+  insertObject(gl, program, vertices, objects);
 
   gl.useProgram(program);
   transforms = initTransform(gl, program);
-  run(gl, program, transforms);
+
+  var hammertime = new Hammer(canvas);
+  let angleY = 0;
+  let angleX = 0;
+  let angleYOffset = 0;
+  let angleXOffset = 0;
+  hammertime.on('pan', function(ev) {
+    angleX = (ev.deltaY / canvas.width) * (Math.PI / 2);
+    angleY = (ev.deltaX / canvas.height) * (Math.PI / 2);
+    console.log('ev.deltaX:', ev.deltaX, 'ev.deltaY:', ev.deltaY, 'angleX:', angleX + angleXOffset, 'angleY:', angleY + angleYOffset);
+    render(gl, angleX + angleXOffset, angleY + angleYOffset);
+  });
+  hammertime.on('panend', function(ev) {
+    angleXOffset += angleX;
+    angleYOffset += angleY;
+  });
+  render(gl, 0, 0);
+  // run(gl, program, transforms);
 }
 
 main();
